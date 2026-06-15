@@ -26,6 +26,7 @@ internal class Plugin
     public void OnApplicationStart()
     {
         Log.Debug("OnApplicationStart");
+        CP_SDK.Chat.Service.RegisterExternalService(new WSService());
     }
 
     [OnExit]
