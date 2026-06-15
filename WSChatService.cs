@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BSPWS;
 
-internal class WSService : ChatServiceBase, IChatService
+internal class WSChatService : ChatServiceBase, IChatService
 {
     public string DisplayName {get;}= "BSPWS";
 
@@ -16,37 +16,37 @@ internal class WSService : ChatServiceBase, IChatService
 
     public bool IsConnectedAndLive()
     {
-        throw new System.NotImplementedException();
+        return true;
     }
 
     public bool IsInTempChannel(string p_ChannelName)
     {
-        throw new System.NotImplementedException();
+        return false;
     }
 
     public void JoinTempChannel(string p_GroupIdentifier, string p_ChannelName, string p_Prefix, bool p_CanSendMessage)
     {
-        throw new System.NotImplementedException();
+        return;
     }
 
     public void LeaveAllTempChannel(string p_GroupIdentifier)
     {
-        throw new System.NotImplementedException();
+        return;
     }
 
     public void LeaveTempChannel(string p_ChannelName)
     {
-        throw new System.NotImplementedException();
+        return;
     }
 
     public string PrimaryChannelName()
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 
     public void RecacheEmotes()
     {
-        throw new System.NotImplementedException();
+        return;
     }
 
     public void SendTextMessage(IChatChannel p_Channel, string p_Message)
@@ -66,26 +66,26 @@ internal class WSService : ChatServiceBase, IChatService
 
     public string WebPageHTML()
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 
     public string WebPageHTMLForm()
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 
     public string WebPageJS()
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 
     public string WebPageJSValidate()
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 
     public void WebPageOnPost(Dictionary<string, string> p_PostData)
     {
-        throw new System.NotImplementedException();
+        return;
     }
 }
