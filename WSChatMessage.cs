@@ -1,26 +1,27 @@
+using System;
 using CP_SDK.Chat.Interfaces;
 
 namespace BSPWS;
 
 internal class WSChatMessage : IChatMessage
 {
-    public string Id => throw new System.NotImplementedException();
+    public string Id {get;} = Guid.NewGuid().ToString();
 
-    public bool IsSystemMessage => throw new System.NotImplementedException();
+    public bool IsSystemMessage => false;
 
-    public bool IsActionMessage => throw new System.NotImplementedException();
+    public bool IsActionMessage => false;
 
-    public bool IsHighlighted => throw new System.NotImplementedException();
+    public bool IsHighlighted => false;
 
-    public bool IsGiganticEmote => throw new System.NotImplementedException();
+    public bool IsGiganticEmote => false;
 
-    public bool IsPing => throw new System.NotImplementedException();
+    public bool IsPing => false;
 
-    public string Message => throw new System.NotImplementedException();
+    public string Message {get; internal set;} = "";
 
-    public IChatUser Sender => throw new System.NotImplementedException();
+    public IChatUser Sender {get; internal set;}
 
-    public IChatChannel Channel => throw new System.NotImplementedException();
+    public IChatChannel Channel {get; internal set;}
 
-    public IChatEmote[] Emotes => throw new System.NotImplementedException();
+    public IChatEmote[] Emotes => [];
 }

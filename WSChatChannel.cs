@@ -4,17 +4,17 @@ namespace BSPWS;
 
 internal class WSChatChannel : IChatChannel
 {
-    public string Id => throw new System.NotImplementedException();
+    public string Id => "mdws_"+Name;
 
-    public string Name => throw new System.NotImplementedException();
+    public string Name {get; internal set;} = "NULLCHANNEL";
 
-    public bool IsTemp => throw new System.NotImplementedException();
+    public bool IsTemp => false;
 
-    public string Prefix => throw new System.NotImplementedException();
+    public string Prefix => "";
 
-    public bool CanSendMessages => throw new System.NotImplementedException();
+    public bool CanSendMessages => false;
 
-    public bool Live => throw new System.NotImplementedException();
+    public bool Live => true;
 
-    public int ViewerCount => throw new System.NotImplementedException();
+    public int ViewerCount => 100;
 }

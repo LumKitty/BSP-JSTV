@@ -95,6 +95,11 @@
       <Private>false</Private>
     </Reference>
 
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BeatSaberDir)/Libs/Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
   </ItemGroup>
   
 </Project>

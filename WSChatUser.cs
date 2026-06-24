@@ -1,26 +1,27 @@
+using System.Runtime.Remoting.Messaging;
 using CP_SDK.Chat.Interfaces;
 
 namespace BSPWS;
 
 internal class WSChatUser : IChatUser
 {
-    public string Id => throw new System.NotImplementedException();
+    public string Id => "mdws_"+UserName;
 
-    public string UserName => throw new System.NotImplementedException();
+    public string UserName {get; internal set;} = "NULLUSER";
 
-    public string DisplayName => throw new System.NotImplementedException();
+    public string DisplayName => UserName;
 
-    public string PaintedName => throw new System.NotImplementedException();
+    public string PaintedName => UserName;
 
-    public string Color => throw new System.NotImplementedException();
+    public string Color => "#FFFFFF";
 
-    public bool IsBroadcaster => throw new System.NotImplementedException();
+    public bool IsBroadcaster => false;
 
-    public bool IsModerator => throw new System.NotImplementedException();
+    public bool IsModerator => false;
 
-    public bool IsSubscriber => throw new System.NotImplementedException();
+    public bool IsSubscriber => false;
 
-    public bool IsVip => throw new System.NotImplementedException();
+    public bool IsVip => false;
 
-    public IChatBadge[] Badges => throw new System.NotImplementedException();
+    public IChatBadge[] Badges => [];
 }

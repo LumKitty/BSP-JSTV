@@ -3,22 +3,29 @@ using System.Collections.ObjectModel;
 using CP_SDK.Chat.Interfaces;
 using CP_SDK.Chat.Services;
 using UnityEngine;
+using CP_SDK_WebSocketSharp.Server;
+using System.Linq;
 
 namespace BSPWS;
 
 internal class WSChatService : ChatServiceBase, IChatService
 {
+    WebSocketServer server;
+
     public string DisplayName {get;}= "BSPWS";
 
     public Color AccentColor {get;} = Color.magenta;
 
-    public ReadOnlyCollection<(IChatService, IChatChannel)> Channels => throw new System.NotImplementedException();
+    internal static WSChatChannel channel = new WSChatChannel();
+
+    (IChatService,IChatChannel)[] chans => [(this,channel)];
+
+    public ReadOnlyCollection<(IChatService, IChatChannel)> Channels => chans.ToList().AsReadOnly();
 
     public bool IsConnectedAndLive()
     {
         return true;
     }
-
     public bool IsInTempChannel(string p_ChannelName)
     {
         return false;
@@ -51,12 +58,17 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public void SendTextMessage(IChatChannel p_Channel, string p_Message)
     {
-        throw new System.NotImplementedException();
+        return;
     }
 
     public void Start()
     {
-        throw new System.NotImplementedException();
+        server = new WebSocketServer(9060);
+
+        server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));
+
+        server.Start();
+
     }
 
     public void Stop()
