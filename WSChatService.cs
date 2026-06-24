@@ -73,7 +73,7 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public void Stop()
     {
-        throw new System.NotImplementedException();
+        server.Stop();
     }
 
     public string WebPageHTML()
