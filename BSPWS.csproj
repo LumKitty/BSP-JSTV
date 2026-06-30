@@ -90,11 +90,6 @@
       <Private>false</Private>
     </Reference>
 
-    <Reference Include="netstandard">
-      <HintPath>$(BeatSaberDir)/Libs/netstandard.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(BeatSaberDir)/Libs/Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
