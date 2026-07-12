@@ -1,2 +1,5 @@
-bin
-obj
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/BSP-JSTV/ShitSettings.cs
