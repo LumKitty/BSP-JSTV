@@ -35,6 +35,9 @@ namespace BSP_JSTV {
                                     chan.Name = "WebSocketChannel";
 
                                     usr.UserName = Message["author"]["username"].ToString();
+                                    usr.IsSubscriber = bool.Parse(Message["author"]["isSubscriber"].ToString());
+                                    usr.IsBroadcaster = bool.Parse(Message["author"]["isStreamer"].ToString()); // might be isContentCreator
+                                    usr.IsModerator = bool.Parse(Message["author"]["isModerator"].ToString());
 
                                     msg.Message = Message["text"].ToString();
                                     msg.Sender = usr;

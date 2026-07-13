@@ -5,7 +5,7 @@ namespace BSP_JSTV;
 
 internal class WSChatUser : IChatUser
 {
-    public string Id => "mdws_"+UserName;
+    public string Id => "lkjstv_"+UserName.ToLower();
 
     public string UserName {get; internal set;} = "NULLUSER";
 
@@ -15,13 +15,13 @@ internal class WSChatUser : IChatUser
 
     public string Color => "#FFFFFF";
 
-    public bool IsBroadcaster => false;
+    public bool IsBroadcaster { get; internal set; } = false;
 
-    public bool IsModerator => false;
+    public bool IsModerator { get; internal set; } = false;
 
-    public bool IsSubscriber => false;
+    public bool IsSubscriber { get; internal set; } = false;
 
-    public bool IsVip => false;
+    public bool IsVip { get; internal set; } = false;
 
     public IChatBadge[] Badges => [];
 }

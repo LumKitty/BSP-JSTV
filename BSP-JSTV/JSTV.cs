@@ -12,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace BSP_JSTV {
     internal class JSTV {
-        internal static string UserName = "";
-        internal static string ChannelID = "";
-        internal static string ApplicationID = "";
-        internal static string ClientID = "";
-        internal static string ClientSecret = "null-clientsecret";
-        internal static int Port = 6969;
+        //internal static string UserName = "";
+        //internal static string ChannelID = "";
+        //internal static string ApplicationID = "";
+        //internal static string ClientID = "";
+        //internal static string ClientSecret = "null-clientsecret";
+        //internal static int Port = 6969;
 
         internal static string RedirURL = "";
         internal static string EncodedAuth = "null-encodedauth";
-        internal static string UserAccessToken = "null-useraccesstoken";
-        internal static string UserRefreshToken = "null-refreshtoken";
+        //internal static string UserAccessToken = "null-useraccesstoken";
+        //internal static string UserRefreshToken = "null-refreshtoken";
         internal static bool ConnectionWanted = true;
 
         internal static string TempAuthCode = "";
@@ -136,7 +136,7 @@ namespace BSP_JSTV {
                 new JProperty("data", new JObject(
                     new JProperty("action", "send_message"),
                     new JProperty("text", Message),
-                    new JProperty("channelId", ChannelID)
+                    new JProperty("channelId", PluginConfig.Instance.ChannelID)
                 ).ToString())
             );
             JSTV.Log(JsonConvert.SerializeObject(MessageJSON));
@@ -151,7 +151,7 @@ namespace BSP_JSTV {
                     new JProperty("action", "send_message"),
                     new JProperty("username", UserName),
                     new JProperty("text", Message),
-                    new JProperty("channelId", ChannelID)
+                    new JProperty("channelId", PluginConfig.Instance.ChannelID)
                 ).ToString())
             );
             Log(JsonConvert.SerializeObject(MessageJSON));
@@ -169,12 +169,12 @@ namespace BSP_JSTV {
             int MaxPolls = Timeout / PollFrequency;
 
 
-            if (UserRefreshToken == null) { UserRefreshToken = "null-refreshtoken"; }
-            EncodedAuth = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(ClientID + ":" + ClientSecret));
+            if (PluginConfig.Instance.UserRefreshToken == null) { PluginConfig.Instance.UserRefreshToken = "null-refreshtoken"; }
+            EncodedAuth = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(PluginConfig.Instance.ClientID + ":" + PluginConfig.Instance.ClientSecret));
 
-            if (UserRefreshToken != "null-refreshtoken") {
+            if (PluginConfig.Instance.UserRefreshToken != "null-refreshtoken") {
                 Log("Logging in with refresh code");
-                requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://api.joystick.tv/api/oauth/token?refresh_token=" + UserRefreshToken + "&grant_type=refresh_token");
+                requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://api.joystick.tv/api/oauth/token?refresh_token=" + PluginConfig.Instance.UserRefreshToken + "&grant_type=refresh_token");
                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", EncodedAuth);
                 requestMessage.Headers.Add("X-JOYSTICK-STATE", State);
                 requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -192,8 +192,8 @@ namespace BSP_JSTV {
                     JObject JsonContent = JObject.Parse(content);
                     //dynamic JsonContent = JsonConvert.DeserializeObject<dynamic>(content);
 
-                    UserAccessToken = JsonContent["access_token"].ToString();
-                    UserRefreshToken = JsonContent["refresh_token"].ToString();
+                    PluginConfig.Instance.UserAccessToken = JsonContent["access_token"].ToString();
+                    PluginConfig.Instance.UserRefreshToken = JsonContent["refresh_token"].ToString();
                     Log(JsonContent.ToString());
                     UserConnected = true;
                     Log("Content: " + content);
@@ -203,10 +203,10 @@ namespace BSP_JSTV {
             if (!UserConnected) {
                 string[] args = new string[0];
 
-                string url = "https://joystick.tv/api/oauth/authorize?response_type=code&client_id=" + ClientID + "&scope=bot&state=" + State;
+                string url = "https://joystick.tv/api/oauth/authorize?response_type=code&client_id=" + PluginConfig.Instance.ClientID + "&scope=bot&state=" + State;
 
                 Log("Starting webserver");
-                HTTPServer Server = new HTTPServer(Port);
+                HTTPServer Server = new HTTPServer(PluginConfig.Instance.Port);
                 Server.Start(State);
 
                 Log("Launching browser");
@@ -254,15 +254,15 @@ namespace BSP_JSTV {
                 } else {
                     JObject JsonContent = JObject.Parse(content);
                     //dynamic JsonContent = JsonConvert.DeserializeObject<dynamic>(content);
-                    UserAccessToken = JsonContent["access_token"].ToString();
-                    UserRefreshToken = JsonContent["refresh_token"].ToString();
+                    PluginConfig.Instance.UserAccessToken = JsonContent["access_token"].ToString();
+                    PluginConfig.Instance.UserRefreshToken = JsonContent["refresh_token"].ToString();
                     Log("Content: " + content);
                     UserConnected = true;
                 }
             }
             Log("Requesting Streamer Settings");
             requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.joystick.tv/api/users/stream-settings");
-            requestMessage.Headers.Add("Authorization", "Bearer " + UserAccessToken);
+            requestMessage.Headers.Add("Authorization", "Bearer " + PluginConfig.Instance.UserAccessToken);
             requestMessage.Headers.Add("X-JOYSTICK-STATE", State);
             //requestMessage.Content = new StringContent("", Encoding.ASCII, "application/json");
             Log("Sending message");
@@ -279,10 +279,10 @@ namespace BSP_JSTV {
                 Log(content);
                 JObject JSON = JObject.Parse(content);
                 //dynamic JSON = JsonConvert.DeserializeObject<dynamic>(content);
-                UserName = JSON["username"].ToString();
-                ChannelID = JSON["channel_id"].ToString();
-                Log("Detected username: " + UserName);
-                Log("Detected channel ID:" + ChannelID);
+                PluginConfig.Instance.UserName = JSON["username"].ToString();
+                PluginConfig.Instance.ChannelID = JSON["channel_id"].ToString();
+                Log("Detected username: " + PluginConfig.Instance.UserName);
+                Log("Detected channel ID:" + PluginConfig.Instance.ChannelID);
                 JSMessage.SaveSettings();
                 UserConnected = true;
             }

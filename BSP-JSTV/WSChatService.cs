@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.WebSockets;
 using UnityEngine;
-using WatsonWebsocket;
 
 namespace BSP_JSTV;
 

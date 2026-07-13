@@ -1,8 +1,9 @@
+using CP_SDK_WebSocketSharp;
 using IPA;
-using IPA.Loader;
-using IpaLogger = IPA.Logging.Logger;
 using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Loader;
+using IpaLogger = IPA.Logging.Logger;
 
 
 namespace BSP_JSTV;
@@ -20,7 +21,7 @@ internal class Plugin
     public Plugin(IpaLogger ipaLogger,Config config, PluginMetadata pluginMetadata)
     {
         Log = ipaLogger;
-        cfg = config;
+        PluginConfig.Instance = config.Generated<PluginConfig>();
         Log.Info($"{pluginMetadata.Name} {pluginMetadata.HVersion} initialized.");
     }
         
@@ -28,13 +29,17 @@ internal class Plugin
     public void OnApplicationStart()
     {
         Log.Debug("OnApplicationStart");
-        JSTV.UserName = "LumKitty";
-        JSTV.ApplicationID = "416a24b3-267b-48f8-a591-74f8eed3b60f";
-        JSTV.ClientID = "04174c34-8a60-4a5f-bc67-cebfe8aa7399";
-        JSTV.ClientSecret = ShitSettings.ClientSecret;
-        JSTV.Port = 6970;
-
-        CP_SDK.Chat.Service.RegisterExternalService(service);
+        if (!(PluginConfig.Instance.UserName.IsNullOrEmpty() || PluginConfig.Instance.ApplicationID.IsNullOrEmpty() || 
+            PluginConfig.Instance.ClientID.IsNullOrEmpty() || PluginConfig.Instance.ClientSecret.IsNullOrEmpty())) {
+            //JSTV.UserName = PluginConfig.Instance.Username;
+            //JSTV.ApplicationID = PluginConfig.Instance.ApplicationID;
+            //JSTV.ClientID = PluginConfig.Instance.ClientID;
+            //JSTV.ClientSecret = PluginConfig.Instance.ClientSecret;
+            //JSTV.Port = PluginConfig.Instance.Port;
+            CP_SDK.Chat.Service.RegisterExternalService(service);
+        } else {
+            Log.Error("BSP-JSTV: Bot credentials not configured");
+        }
     }
 
     [OnExit]
