@@ -2,14 +2,9 @@
 
 Currently it works, but I need to implement an actual settings menu and basically every feature beyond regular chat.
 If you really want to build this and try it, you'll need to:
-1. Edit BSP_JSTV.csproj and change your BeatSaberDir
-```
-<PropertyGroup>
- <BeatSaberDir>D:\Games\Standalone\BSManager\BSInstances\1.40.8</BeatSaberDir>
-</PropertyGroup>
-```
-2. Follow the bot setup instructions for Joystick, same as in https://github.com/LumKitty/VNyan-JSTV/
-3. Edit Plugin.cs and change:
+
+1. Follow the bot setup instructions for Joystick, same as in https://github.com/LumKitty/VNyan-JSTV/
+2. Edit Plugin.cs and change:
 ```
 public void OnApplicationStart() {
     ...
