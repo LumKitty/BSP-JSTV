@@ -23,7 +23,7 @@ public void OnApplicationStart() {
 ```
 namespace BSP_JSTV {
     internal static class ShitSettings {
-		    internal static string ClientSecret = "Your client secret";
+        internal static string ClientSecret = "Your client secret";
     }
 }
 ```
