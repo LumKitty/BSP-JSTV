@@ -12,13 +12,11 @@ If you really want to build this and try it, you'll need to:
 3. Edit Plugin.cs and change:
 ```
 public void OnApplicationStart() {
-    Log.Debug("OnApplicationStart");
+    ...
     JSTV.UserName = "Your Joystick username";
     JSTV.ApplicationID = "Application ID you got when making your bot";
     JSTV.ClientID = "Client ID you got when making your bot";
-    JSTV.ClientSecret = ShitSettings.ClientSecret;
-    JSTV.Port = 6970;
-    CP_SDK.Chat.Service.RegisterExternalService(service);
+    ...
 }
 ```
 3. Create a new file named ShitSettings.cs in the same directory as Plugin.cs
