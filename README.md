@@ -29,3 +29,5 @@ namespace BSP_JSTV {
 ```
 4. Make sure that you don't upload ShitSettings.cs anywhere, and don't share your compiled DLL with anyone!  
    If you don't understand why sharing those files will be bad, you shouldn't be building this in its current state!
+
+Credits: This mod would not be possible were it not for https://github.com/milkydelta/BSP-WS which I based it on
