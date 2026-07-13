@@ -62,13 +62,14 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public void SendTextMessage(IChatChannel p_Channel, string p_Message)
     {
-        const string VNyanURL = "ws://localhost:8000/vnyan";
+        JSTV.SendChatMessage(p_Message);
+        /*const string VNyanURL = "ws://localhost:8000/vnyan";
         WatsonWsClient wsClient = new WatsonWsClient(new Uri(VNyanURL));
         System.Threading.CancellationToken CT = new System.Threading.CancellationToken();
         wsClient.KeepAliveInterval = 1000;
         wsClient.Start();
         wsClient.SendAsync("BSPlus "+p_Message, WebSocketMessageType.Text, CT);
-        wsClient.Stop();
+        wsClient.Stop();*/
 
         return;
     }
