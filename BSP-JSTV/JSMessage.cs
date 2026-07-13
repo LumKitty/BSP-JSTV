@@ -1,12 +1,17 @@
-﻿using CP_SDK.Chat.SimpleJSON;
+﻿using CP_SDK.Chat;
+using CP_SDK.Chat.Interfaces;
+using CP_SDK.Chat.SimpleJSON;
 using CP_SDK_WebSocketSharp;
-using CP_SDK.Chat;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Globalization;
+using System.IO;
+using System.Net;
 using System.Text;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace BSP_JSTV {
@@ -14,7 +19,6 @@ namespace BSP_JSTV {
     internal class JSMessage {
         
         internal static void Log(string Message) { }
-
 
         internal static void MessageReceived(object sender, MessageEventArgs args) {
             try {
@@ -36,16 +40,36 @@ namespace BSP_JSTV {
 
                                     usr.UserName = Message["author"]["username"].ToString();
                                     usr.IsSubscriber = bool.Parse(Message["author"]["isSubscriber"].ToString());
-                                    usr.IsBroadcaster = bool.Parse(Message["author"]["isStreamer"].ToString()); // might be isContentCreator
+                                    usr.IsBroadcaster = bool.Parse(Message["author"]["isStreamer"].ToString());
                                     usr.IsModerator = bool.Parse(Message["author"]["isModerator"].ToString());
 
                                     msg.Message = Message["text"].ToString();
                                     msg.Sender = usr;
                                     msg.Channel = WSChatService.channel;
 
+                                    string TempMessage = " " + msg.Message + " ";
+
+                                    if (Message.ContainsKey("emotesUsed")) {
+                                        WebClient wc = new WebClient();
+                                        Plugin.Log.Debug("Emote: Parsing: |" + TempMessage + "|");
+                                        JArray JEmotes = (JArray)Message["emotesUsed"];
+                                        List<WSChatEmote> ChatEmotes = new List<WSChatEmote>();
+                                        foreach (JObject JEmote in JEmotes) {
+                                            string URL = JEmote["url"].ToString();
+                                            string Name = JEmote["code"].ToString();
+                                            Plugin.Log.Debug("Emote: " + Name + ", URL: " + URL);
+                                            List<int> indices = TempMessage.AllIndexesOf(" "+Name+" ");
+                                            int NameLen = Name.Length;
+                                            foreach(int Index in indices) {
+                                                Plugin.Log.Debug("Emote: |"+Name+"| Found: "+TempMessage.Substring(Index+1,NameLen));
+                                                ChatEmotes.Add(new WSChatEmote(Name, URL, Index, Index+NameLen-1));
+                                            }
+                                        }
+                                        ChatEmotes.Sort((x, y) => y.StartIndex.CompareTo(x.StartIndex));
+                                        msg.Emotes = ChatEmotes.ToArray();
+                                    }
 
                                     Plugin.service.m_OnTextMessageReceivedCallbacks?.InvokeAll(Plugin.service, msg);
-
 
                                     break;
                                 case "streamevent":
@@ -167,7 +191,8 @@ namespace BSP_JSTV {
                     }
                 }
             } catch (Exception ex) {
-                Log("ERROR: " + ex.Message);
+                Plugin.Log.Debug("ERROR: " + ex.Message);
+                Plugin.Log.Debug("ERROR: " + ex.InnerException);
             }
         }
 

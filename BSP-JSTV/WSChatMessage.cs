@@ -23,5 +23,5 @@ internal class WSChatMessage : IChatMessage
 
     public IChatChannel Channel {get; internal set;}
 
-    public IChatEmote[] Emotes => [];
+    public IChatEmote[] Emotes { get; internal set;} = new IChatEmote[0];
 }
