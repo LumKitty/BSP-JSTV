@@ -1,28 +1,26 @@
-### Adds joystick.tv as a possible chat service for BeatSaberPlus. Not ready for production use yet
+### Adds joystick.tv as a possible chat service for BeatSaberPlus.
 
-Currently it works, but I need to implement an actual settings menu and basically every feature beyond regular chat.
-If you really want to build this and try it, you'll need to:
+Early alpha software. It seems to work, but no promises
 
-1. Follow the bot setup instructions for Joystick, same as in https://github.com/LumKitty/VNyan-JSTV/
-2. Edit Plugin.cs and change:
-```
-public void OnApplicationStart() {
-    ...
-    JSTV.UserName = "Your Joystick username";
-    JSTV.ApplicationID = "Application ID you got when making your bot";
-    JSTV.ClientID = "Client ID you got when making your bot";
-    ...
-}
-```
-3. Create a new file named ShitSettings.cs in the same directory as Plugin.cs
-```
-namespace BSP_JSTV {
-    internal static class ShitSettings {
-        internal static string ClientSecret = "Your client secret";
-    }
-}
-```
-4. Make sure that you don't upload ShitSettings.cs anywhere, and don't share your compiled DLL with anyone!  
-   If you don't understand why sharing those files will be bad, you shouldn't be building this in its current state!
+<img width="284" height="196" alt="image" src="https://github.com/user-attachments/assets/6745a185-2105-471d-9eb2-c62255ca7ffe" />
 
-Credits: This mod would not be possible were it not for https://github.com/milkydelta/BSP-WS which I based it on
+
+### Setup - JSTV website:
+1. Visit https://joystick.tv/applications
+2. Create a new bot
+3. Fill in a username. This will be displayed in chat and should be specific to you, not something generic like "VNyan"
+4. Make a note of the Application ID, Client ID and Client Secret
+   <img width="870" height="1065" alt="image" src="https://github.com/user-attachments/assets/0769e318-3d1c-4b94-8d54-9804ae5ae308" />
+5. Give it all the permissions for now, I'll figure out what it actually needs later!
+6. Set the OAuth Redirect URL to http://localhost:6970
+
+### Setup - Beat Saber
+7. Copy BSP_JSTV.dll into the Plugins directory of your Beat Saber install
+8. Make sure you unblocked it (right click -> properties -> unblock)
+9. Start Beat Saber, then close it
+10. Open BSP-JSTV.json in your BeatSaber\UserData directory
+11. Fill in the Application ID, Client ID and Client Secret you noted at step 4
+12. Start Beat Saber - do not wear your VR headset for this part!
+13. The app will appear to hang (I'm working on this) and a webpage will open asking you to grant permissions, allow it and Beat Saber will load normally from now on
+
+If successful you should see Joystick messages alongside Twitch ones, chat should be relayed, requests should work etc. Feature partity should be very close to that of Twitch
