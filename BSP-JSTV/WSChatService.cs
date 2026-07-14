@@ -47,7 +47,10 @@ internal class WSChatService : ChatServiceBase, IChatService {
         return;
     }
 
-    public void SendTextMessage(IChatChannel p_Channel, string p_Message) { 
+    public void SendTextMessage(IChatChannel p_Channel, string p_Message) {
+        if (PluginConfig.Instance.FilterHTTP) {
+            p_Message = p_Message.Replace("https://", "").Replace("http://", ""); // Joystick disallow most external links, including beatsaver.com
+        }
         JSTV.SendChatMessage(p_Message);
         /*const string VNyanURL = "ws://localhost:8000/vnyan";
         WatsonWsClient wsClient = new WatsonWsClient(new Uri(VNyanURL));
