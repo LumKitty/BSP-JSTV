@@ -98,7 +98,17 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public string WebPageHTMLForm()
     {
-        return "";
+        return """
+        <div class="col-lg-4 card text-center md mx-auto">
+            <b class="card-header">BSP-JSTV</b>
+            <div class="card-body">
+                <div class="input-group">
+                    <span class="input-group-text">THING!</span>
+                    <input class="form-control" type="text" name="jstv-thing" id="jstv-thing">
+                </div>
+            </div>
+        </div>
+        """;
     }
 
     public string WebPageJS()
@@ -113,6 +123,10 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public void WebPageOnPost(Dictionary<string, string> p_PostData)
     {
+        if (p_PostData.ContainsKey("jstv-thing"))
+        {
+            Plugin.Log.Notice("Post Data: "+ p_PostData["jstv-thing"]);
+        }
         return;
     }
 }
