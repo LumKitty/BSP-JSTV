@@ -287,6 +287,5 @@ namespace BSP_JSTV {
                 UserConnected = true;
             }
         }
-
     }
 }

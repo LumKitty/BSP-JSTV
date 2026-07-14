@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace BSP_JSTV {
         public string ClientSecret { get; set; } = "";
         public int Port { get; set; } = 6970;
         public bool ShowEmotes { get; set; } = true;
+        public bool FilterHTTP { get; set; } = true;
 
         public string UserName { get; set; }
         public string ChannelID { get; set; }
