@@ -11,6 +11,7 @@ namespace BSP_JSTV {
         public string ClientID { get; set; } = "";
         public string ClientSecret { get; set; } = "";
         public int Port { get; set; } = 6970;
+        public bool ShowEmotes { get; set; } = true;
 
         public string UserName { get; set; }
         public string ChannelID { get; set; }

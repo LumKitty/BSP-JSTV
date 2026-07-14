@@ -14,12 +14,12 @@ namespace BSP_JSTV;
 internal class WSChatService : ChatServiceBase, IChatService
 {
     //WebSocketServer server;
-
+    
     public string DisplayName {get;}= "JSTV";
 
-    public Color AccentColor { get; } = new Color(118, 225, 240);
+    public Color AccentColor { get; } = new Color((118/256f), (225/265f), (240/256f));
 
-    internal static WSChatChannel channel = new WSChatChannel();
+    internal static WSChatChannel channel = new WSChatChannel(PluginConfig.Instance.UserName);
 
     (IChatService,IChatChannel)[] chans => [(this,channel)];
 
@@ -27,7 +27,7 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public bool IsConnectedAndLive()
     {
-        return true;
+        return JSTV.BotConnected;
     }
     public bool IsInTempChannel(string p_ChannelName)
     {
@@ -51,7 +51,7 @@ internal class WSChatService : ChatServiceBase, IChatService
 
     public string PrimaryChannelName()
     {
-        return "";
+        return PluginConfig.Instance.UserName;
     }
 
     public void RecacheEmotes()
@@ -76,6 +76,7 @@ internal class WSChatService : ChatServiceBase, IChatService
     public void Start()
     {
         JSTV.ConnectJSTV();
+        channel.Name = PluginConfig.Instance.UserName;
         //server = new WebSocketServer(9060);
 
         //server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));

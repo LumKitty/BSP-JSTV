@@ -4,9 +4,11 @@ namespace BSP_JSTV;
 
 internal class WSChatChannel : IChatChannel
 {
+    private string _Name = "NULLCHANNEL";
+    
     public string Id => "mdws_"+Name;
 
-    public string Name {get; internal set;} = "NULLCHANNEL";
+    public string Name { get { return _Name; } set { _Name = value; } }
 
     public bool IsTemp => false;
 
@@ -16,5 +18,9 @@ internal class WSChatChannel : IChatChannel
 
     public bool Live => true;
 
-    public int ViewerCount => 100;
+    public int ViewerCount { get; internal set; } = 69;
+
+    public WSChatChannel(string __Name) {
+        _Name = __Name;
+    }
 }

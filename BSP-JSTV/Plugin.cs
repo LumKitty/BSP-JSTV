@@ -15,7 +15,7 @@ internal class Plugin
 
     internal static Config cfg { get; private set; }
 
-    internal static WSChatService service = new WSChatService();
+    internal static WSChatService service;
 
     [Init]
     public Plugin(IpaLogger ipaLogger,Config config, PluginMetadata pluginMetadata)
@@ -31,6 +31,7 @@ internal class Plugin
         Log.Debug("OnApplicationStart");
         if (!(PluginConfig.Instance.UserName.IsNullOrEmpty() || PluginConfig.Instance.ApplicationID.IsNullOrEmpty() || 
             PluginConfig.Instance.ClientID.IsNullOrEmpty() || PluginConfig.Instance.ClientSecret.IsNullOrEmpty())) {
+            service = new WSChatService();
             //JSTV.UserName = PluginConfig.Instance.Username;
             //JSTV.ApplicationID = PluginConfig.Instance.ApplicationID;
             //JSTV.ClientID = PluginConfig.Instance.ClientID;

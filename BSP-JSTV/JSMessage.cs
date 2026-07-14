@@ -29,14 +29,16 @@ namespace BSP_JSTV {
                         JObject Message = (JObject)Results["message"];
                         if (Message.ContainsKey("event")) {
                             string EventClass = Message["event"].ToString().ToLower();
+
+                            WSChatUser usr = new WSChatUser();
+                            WSChatChannel chan = new WSChatChannel(PluginConfig.Instance.UserName);
+                            //chan.Name = PluginConfig.Instance.UserName; ;
+
                             switch (EventClass) {
                                 case "chatmessage":
 
                                     WSChatMessage msg = new WSChatMessage();
-                                    WSChatUser usr = new WSChatUser();
-                                    WSChatChannel chan = new WSChatChannel();
-
-                                    chan.Name = "WebSocketChannel";
+                                    
 
                                     usr.UserName = Message["author"]["username"].ToString();
                                     usr.IsSubscriber = bool.Parse(Message["author"]["isSubscriber"].ToString());
@@ -49,24 +51,26 @@ namespace BSP_JSTV {
 
                                     string TempMessage = " " + msg.Message + " ";
 
-                                    if (Message.ContainsKey("emotesUsed")) {
-                                        WebClient wc = new WebClient();
-                                        Plugin.Log.Debug("Emote: Parsing: |" + TempMessage + "|");
-                                        JArray JEmotes = (JArray)Message["emotesUsed"];
-                                        List<WSChatEmote> ChatEmotes = new List<WSChatEmote>();
-                                        foreach (JObject JEmote in JEmotes) {
-                                            string URL = JEmote["url"].ToString();
-                                            string Name = JEmote["code"].ToString();
-                                            Plugin.Log.Debug("Emote: " + Name + ", URL: " + URL);
-                                            List<int> indices = TempMessage.AllIndexesOf(" "+Name+" ");
-                                            int NameLen = Name.Length;
-                                            foreach(int Index in indices) {
-                                                Plugin.Log.Debug("Emote: |"+Name+"| Found: "+TempMessage.Substring(Index+1,NameLen));
-                                                ChatEmotes.Add(new WSChatEmote(Name, URL, Index, Index+NameLen-1));
+                                    if (PluginConfig.Instance.ShowEmotes) {
+                                        if (Message.ContainsKey("emotesUsed")) {
+                                            WebClient wc = new WebClient();
+                                            Plugin.Log.Debug("Emote: Parsing: |" + TempMessage + "|");
+                                            JArray JEmotes = (JArray)Message["emotesUsed"];
+                                            List<WSChatEmote> ChatEmotes = new List<WSChatEmote>();
+                                            foreach (JObject JEmote in JEmotes) {
+                                                string URL = JEmote["url"].ToString();
+                                                string Name = JEmote["code"].ToString();
+                                                Plugin.Log.Debug("Emote: " + Name + ", URL: " + URL);
+                                                List<int> indices = TempMessage.AllIndexesOf(" " + Name + " ");
+                                                int NameLen = Name.Length;
+                                                foreach (int Index in indices) {
+                                                    Plugin.Log.Debug("Emote: |" + Name + "| Found: " + TempMessage.Substring(Index + 1, NameLen));
+                                                    ChatEmotes.Add(new WSChatEmote(Name, URL, Index, Index + NameLen - 1));
+                                                }
                                             }
+                                            ChatEmotes.Sort((x, y) => y.StartIndex.CompareTo(x.StartIndex));
+                                            msg.Emotes = ChatEmotes.ToArray();
                                         }
-                                        ChatEmotes.Sort((x, y) => y.StartIndex.CompareTo(x.StartIndex));
-                                        msg.Emotes = ChatEmotes.ToArray();
                                     }
 
                                     Plugin.service.m_OnTextMessageReceivedCallbacks?.InvokeAll(Plugin.service, msg);
@@ -80,110 +84,129 @@ namespace BSP_JSTV {
                                     int Value3 = 0;
                                     string TempTime = "";
                                     string EventType = Message["type"].ToString();
-                                        Log("Received stream event of type: " + EventType);
-                                        if (Message.ContainsKey("metadata")) {
-                                            //VNyan_JSTV.Log("Metadata found. Parsing");
-                                            //VNyan_JSTV.Log(Message["metadata"].GetType().ToString());
-                                            //;VNyan_JSTV.Log(Message["metadata"].ToString());
-                                            JObject Metadata = JObject.Parse(Message["metadata"].ToString()); // I hate this
-                                                                                                              //VNyan_JSTV.Log(Metadata.ToString());
-                                            switch (EventType) {
-                                                case "FollowerCountUpdated":
-                                                    ProcessJObject(Metadata, "number_of_followers", ref Value1);
-                                                    break;
-                                                case "SubscriberCountUpdated":
-                                                    ProcessJObject(Metadata, "number_of_subscribers", ref Value1);
-                                                    break;
-                                                case "ViewerCountUpdated":
-                                                    ProcessJObject(Metadata, "number_of_viewers", ref Value1);
-                                                    break;
-                                                case "DropinStream":  // raid out
-                                                    ProcessJObject(Metadata, "destination", ref UserName);
-                                                    ProcessJObject(Metadata, "number_of_viewers", ref Value1);
-                                                    break;
-                                                case "TipGoalDeleted":
-                                                case "TipGoalUpdated":
-                                                case "TipMenuItemUnlocked":
-                                                case "TipMenuItemLocked":
-                                                case "TipGoalCreated":
-                                                    ProcessJObject(Metadata, "title", ref Item);
-                                                    ProcessJObject(Metadata, "amount", ref Value1);
-                                                    break;
-                                                case "TipGoalIncreased":
-                                                    ProcessJObject(Metadata, "title", ref Item);
-                                                    ProcessJObject(Metadata, "amount", ref Value1);
-                                                    ProcessJObject(Metadata, "current", ref Value2);
-                                                    ProcessJObject(Metadata, "previous", ref Value3);
-                                                    break;
-                                                case "Followed":
-                                                case "UserMuted":
-                                                case "UserUnmuted":
-                                                case "ChatTimersCleared":
-                                                case "Ended":
-                                                case "StreamEnding":
-                                                case "StreamModeUpdated":
-                                                case "StreamResuming":
-                                                case "Started":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    break;
-                                                case "StreamDroppedIn":  // raid in
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "number_of_viewers", ref Value1);
-                                                    break;
-                                                case "GiftedSubscriptions":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "how_much", ref Value1);
-                                                    break;
-                                                case "MilestoneCompleted":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "title", ref Item);
-                                                    ProcessJObject(Metadata, "amount", ref Value1);
-                                                    break;
-                                                case "Resubscribed":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "how_much", ref Value1);
-                                                    ProcessJObject(Metadata, "how_long", ref Value2);
-                                                    break;
-                                                case "Subscribed":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "how_much", ref Value1);
-                                                    break;
-                                                case "TipGoalMet":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "title", ref Item);
-                                                    ProcessJObject(Metadata, "amount", ref Value1);
-                                                    break;
-                                                case "Tipped":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "tip_menu_item", ref Item);
-                                                    ProcessJObject(Metadata, "how_much", ref Value1);
-                                                    break;
-                                                case "WheelSpinClaimed":
-                                                    ProcessJObject(Metadata, "who", ref UserName);
-                                                    ProcessJObject(Metadata, "prize", ref Item);
-                                                    ProcessJObject(Metadata, "how_much", ref Value1);
-                                                    break;
-                                                case "ChatTimerStarted":
-                                                    ProcessJObject(Metadata, "name", ref Item);
-                                                    ProcessJObject(Metadata, "endsAt", ref TempTime);
-                                                    Value1 = ISO8601toMilisecondTimespan(TempTime);
-                                                    break;
-                                                case "PvpSessionRequested":
-                                                case "PvpSessionReady":
-                                                case "PvpSessionEnded":
-                                                case "PvpSessionEnding":
-                                                case "PvpSessionStarted":
-                                                    ProcessJObject(Metadata, "where", ref UserName);
-                                                    ProcessJObject(Metadata, "when", ref TempTime);
-                                                    Value1 = ISO8601toMilisecondTimespan(TempTime);
-                                                    break;
-                                                    //These events exist, but have no data so are handled automatically
-                                                    //DeviceConnected
-                                                    //DeviceDisconnected
-                                                    //DeviceSettingsUpdated
-                                                    //SettingsUpdated
-                                            }
+                                    Log("Received stream event of type: " + EventType);
+                                    if (Message.ContainsKey("metadata")) {
+                                        //VNyan_JSTV.Log("Metadata found. Parsing");
+                                        //VNyan_JSTV.Log(Message["metadata"].GetType().ToString());
+                                        //;VNyan_JSTV.Log(Message["metadata"].ToString());
+                                        JObject Metadata = JObject.Parse(Message["metadata"].ToString()); // I hate this
+                                                                                                            //VNyan_JSTV.Log(Metadata.ToString());
+                                        switch (EventType) {
+                                            case "FollowerCountUpdated":
+                                                //ProcessJObject(Metadata, "number_of_followers", ref Value1);
+                                                break;
+                                            case "SubscriberCountUpdated":
+                                                //ProcessJObject(Metadata, "number_of_subscribers", ref Value1);
+                                                break;
+                                            case "ViewerCountUpdated":
+                                                ProcessJObject(Metadata, "number_of_viewers", ref Value1);
+                                                WSChatService.channel.ViewerCount = Value1;
+                                                break;
+                                            case "DropinStream":  // raid out
+                                                //ProcessJObject(Metadata, "destination", ref UserName);
+                                                //ProcessJObject(Metadata, "number_of_viewers", ref Value1);
+                                                break;
+                                            case "TipGoalDeleted":
+                                            case "TipGoalUpdated":
+                                            case "TipMenuItemUnlocked":
+                                            case "TipMenuItemLocked":
+                                            case "TipGoalCreated":
+                                                //ProcessJObject(Metadata, "title", ref Item);
+                                                //ProcessJObject(Metadata, "amount", ref Value1);
+                                                break;
+                                            case "TipGoalIncreased":
+                                                //ProcessJObject(Metadata, "title", ref Item);
+                                                //ProcessJObject(Metadata, "amount", ref Value1);
+                                                //ProcessJObject(Metadata, "current", ref Value2);
+                                                //ProcessJObject(Metadata, "previous", ref Value3);
+                                                break;
+                                            case "Followed":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                usr.UserName = UserName;
+                                                Plugin.service.m_OnChannelFollowCallbacks?.InvokeAll(Plugin.service, chan, usr);
+                                                break;
+                                            case "UserMuted":
+                                            case "UserUnmuted":
+                                            case "ChatTimersCleared":
+                                            case "Ended":
+                                            case "StreamEnding":
+                                            case "StreamModeUpdated":
+                                            case "StreamResuming":
+                                            case "Started":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                break;
+                                            case "StreamDroppedIn":  // raid in
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "number_of_viewers", ref Value1);
+                                                usr.UserName = UserName;
+                                                Plugin.service.m_OnChannelRaidCallbacks?.InvokeAll(Plugin.service, chan, usr, Value1);
+                                                break;
+                                            case "GiftedSubscriptions":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "how_much", ref Value1);
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} gifted {Value1} subscriptions");
+                                                break;
+                                            case "MilestoneCompleted":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "title", ref Item);
+                                                ProcessJObject(Metadata, "amount", ref Value1);
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} met milestone {Value1} ({Item})");
+                                                break;
+                                            case "Resubscribed":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "how_much", ref Value1);
+                                                ProcessJObject(Metadata, "how_long", ref Value2);
+                                                usr.UserName = UserName;
+                                                //Plugin.service.m_OnChannelSubscriptionCallbacks?.InvokeAll(Plugin.service, chan, usr); //TODO: What is IChatSubscriptionEvent?
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} resubscribed {Value1} ({Value2})");
+                                                break;
+                                            case "Subscribed":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "how_much", ref Value1);
+                                                usr.UserName = UserName;
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} subscribed {Value1}");
+                                                //Plugin.service.m_OnChannelSubscriptionCallbacks?.InvokeAll(Plugin.service, chan, usr); //TODO: What is IChatSubscriptionEvent?
+                                                break;
+                                            case "TipGoalMet":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "title", ref Item);
+                                                ProcessJObject(Metadata, "amount", ref Value1);
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} met tip goal {Value1} ({Item})");
+                                                break;
+                                            case "Tipped":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "tip_menu_item", ref Item);
+                                                ProcessJObject(Metadata, "how_much", ref Value1);
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} tipped {Value1} ({Item})");
+                                                //Plugin.service.m_OnChannelBitsCallbacks?.InvokeAll(Plugin.service, chan, usr, Value1);
+                                                break;
+                                            case "WheelSpinClaimed":
+                                                ProcessJObject(Metadata, "who", ref UserName);
+                                                ProcessJObject(Metadata, "prize", ref Item);
+                                                ProcessJObject(Metadata, "how_much", ref Value1);
+                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} spun for {Value1} ({Item})");
+                                                break;
+                                            case "ChatTimerStarted":
+                                                ProcessJObject(Metadata, "name", ref Item);
+                                                ProcessJObject(Metadata, "endsAt", ref TempTime);
+                                                Value1 = ISO8601toMilisecondTimespan(TempTime);
+                                                break;
+                                            case "PvpSessionRequested":
+                                            case "PvpSessionReady":
+                                            case "PvpSessionEnded":
+                                            case "PvpSessionEnding":
+                                            case "PvpSessionStarted":
+                                                //ProcessJObject(Metadata, "where", ref UserName);
+                                                //ProcessJObject(Metadata, "when", ref TempTime);
+                                                //Value1 = ISO8601toMilisecondTimespan(TempTime);
+                                                break;
+                                                //These events exist, but have no data so are handled automatically
+                                                //DeviceConnected
+                                                //DeviceDisconnected
+                                                //DeviceSettingsUpdated
+                                                //SettingsUpdated
                                         }
+                                    }
                                    
                                     break;
                             }
