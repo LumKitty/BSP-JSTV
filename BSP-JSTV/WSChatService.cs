@@ -106,14 +106,30 @@ internal class WSChatService : ChatServiceBase, IChatService
                     <span class="input-group-text">THING!</span>
                     <input class="form-control" type="text" name="jstv-thing" id="jstv-thing">
                 </div>
+                <p>This empty field is used to send a short-lived code. Once obtained, "Save" it quickly.</p>
+                <div class="input-group">
+                    <span class="input-group-text">Code</span>
+                    <input class="form-control" type="password" name="jstv-code" id="jstv-code">
+                </div>
+                <a href="https://joystick.tv/api/oauth/authorize?response_type=code&client_id=@CLIENT_ID@&scope=bot"
+                class="btn btn-primary btn-lg" style="background-color: rgb(24, 42, 54);color: rgb(10, 255, 255)">Authorize Bot (Obtain Code)</a>
             </div>
+
         </div>
-        """;
+        """.Replace("@CLIENT_ID@", "00000000-0000-0000-0000-000000000000");
     }
 
     public string WebPageJS()
     {
-        return "";
+        return """
+        {
+            let params = new URLSearchParams(window.location.search);
+            if (params.has("code")){
+                let code_input_box = document.getElementById("jstv-code");
+                code_input_box.value = params.get("code");
+            }
+        }
+        """;
     }
 
     public string WebPageJSValidate()
@@ -125,7 +141,11 @@ internal class WSChatService : ChatServiceBase, IChatService
     {
         if (p_PostData.ContainsKey("jstv-thing"))
         {
-            Plugin.Log.Notice("Post Data: "+ p_PostData["jstv-thing"]);
+            Plugin.Log.Notice("Post Thing: "+ p_PostData["jstv-thing"]);
+        }
+        if (p_PostData.ContainsKey("jstv-code"))
+        {
+            Plugin.Log.Notice("Post Code: "+ p_PostData["jstv-code"]);
         }
         return;
     }
