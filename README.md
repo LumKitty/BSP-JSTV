@@ -2,8 +2,7 @@
 
 Early alpha software. It seems to work, but no promises
 
-<img width="284" height="196" alt="image" src="https://github.com/user-attachments/assets/6745a185-2105-471d-9eb2-c62255ca7ffe" />
-
+<img width="741" height="342" alt="image" src="https://github.com/user-attachments/assets/8c72df0d-2b21-4a42-a368-3f6d2fbd39cb" />
 
 ### Setup - JSTV website:
 1. Visit https://joystick.tv/applications
