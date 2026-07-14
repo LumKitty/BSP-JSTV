@@ -6,7 +6,7 @@
   <PropertyGroup>
     <PluginId>BSP_JSTV</PluginId>
     <PluginName>BSP-JSTV</PluginName>
-    <Authors>LumKitty</Authors>
+    <Authors>LumKitty, milkydelta</Authors>
     <Version>0.0.1</Version>
     <GameVersion>1.40.8</GameVersion>
     <Description>I made another mod.</Description>

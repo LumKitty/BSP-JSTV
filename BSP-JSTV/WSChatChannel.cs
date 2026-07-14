@@ -1,12 +1,26 @@
 using CP_SDK.Chat.Interfaces;
+using CP_SDK_WebSocketSharp;
 
 namespace BSP_JSTV;
 
 internal class WSChatChannel : IChatChannel
 {
     private string _Name = "NULLCHANNEL";
+
+    internal string _id = "";
     
-    public string Id => "mdws_"+Name;
+    public string Id {get
+        {
+            if (_id.IsNullOrEmpty())
+            {
+                return "lkjstv_"+_Name;
+            }
+            else
+            {
+                return "lkjstv_"+_id;
+            }
+        }
+    }
 
     public string Name { get { return _Name; } set { _Name = value; } }
 

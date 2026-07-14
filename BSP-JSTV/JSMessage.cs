@@ -18,7 +18,10 @@ namespace BSP_JSTV {
 
     internal class JSMessage {
         
-        internal static void Log(string Message) { }
+        internal static void Log(string Message)
+        {
+            Plugin.Log.Info(Message);
+        }
 
         internal static void MessageReceived(object sender, MessageEventArgs args) {
             try {
