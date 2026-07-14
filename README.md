@@ -14,12 +14,13 @@ Early alpha software. It seems to work, but no promises
 6. Set the OAuth Redirect URL to http://localhost:6970
 
 ### Setup - Beat Saber
-7. Copy BSP_JSTV.dll into the Plugins directory of your Beat Saber install
-8. Make sure you unblocked it (right click -> properties -> unblock)
-9. Start Beat Saber, then close it
-10. Open BSP-JSTV.json in your BeatSaber\UserData directory
-11. Fill in the Application ID, Client ID and Client Secret you noted at step 4
-12. Start Beat Saber - do not wear your VR headset for this part!
-13. The app will appear to hang (I'm working on this) and a webpage will open asking you to grant permissions, allow it and Beat Saber will load normally from now on
+7. Have BeatSaberPlus configured and working: https://github.com/hardcpp/BeatSaberPlus
+8. Copy BSP_JSTV.dll into the Plugins directory of your Beat Saber install
+9. Make sure you unblocked it (right click -> properties -> unblock)
+10. Start Beat Saber, then close it
+11. Open BSP-JSTV.json in your BeatSaber\UserData directory
+12. Fill in the Application ID, Client ID and Client Secret you noted at step 4
+13. Start Beat Saber - do not wear your VR headset for this part!
+14. The app will appear to hang (I'm working on this) and a webpage will open asking you to grant permissions, allow it and Beat Saber will load normally from now on
 
 If successful you should see Joystick messages alongside Twitch ones, chat should be relayed, requests should work etc. Feature partity should be very close to that of Twitch
