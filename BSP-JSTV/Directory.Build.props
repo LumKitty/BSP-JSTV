@@ -6,10 +6,10 @@
   <PropertyGroup>
     <PluginId>BSP_JSTV</PluginId>
     <PluginName>BSP-JSTV</PluginName>
-    <Authors>LumKitty</Authors>
-    <Version>0.0.1</Version>
+    <Authors>LumKitty, MilkyDelta</Authors>
+    <Version>0.2.0</Version>
     <GameVersion>1.40.8</GameVersion>
-    <Description>I made another mod.</Description>
+    <Description>Chatplex service for joystick.tv</Description>
     <!--<PluginIcon></PluginIcon>-->
     <!--<ProjectSource></ProjectSource>-->
     <!--<ProjectHome></ProjectHome>-->

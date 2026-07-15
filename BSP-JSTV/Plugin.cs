@@ -3,6 +3,7 @@ using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
+using System.Threading.Tasks;
 using IpaLogger = IPA.Logging.Logger;
 
 
@@ -25,6 +26,8 @@ internal class Plugin {
     public void OnApplicationStart() {
         Log.Debug("OnApplicationStart");
         if (!(PluginConfig.Instance.ApplicationID.IsNullOrEmpty() || PluginConfig.Instance.ClientID.IsNullOrEmpty() || PluginConfig.Instance.ClientSecret.IsNullOrEmpty())) {
+            Log.Debug("Authenticate with joystick");
+            JSTV.AuthoriseUser();
             Log.Debug("Create chat service");
             service = new WSChatService();
             //JSTV.UserName = PluginConfig.Instance.Username;

@@ -66,7 +66,7 @@ internal class WSChatService : ChatServiceBase, IChatService {
     public void Start() {
         try {
             JSTV.ConnectJSTV();
-            channel.Name = PluginConfig.Instance.UserName;
+            //channel.Name = PluginConfig.Instance.UserName;
             //server = new WebSocketServer(9060);
 
             //server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));
