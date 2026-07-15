@@ -1,12 +1,9 @@
 using CP_SDK.Chat.Interfaces;
 using CP_SDK.Chat.Services;
-using CP_SDK.UI.Modals;
-using CP_SDK_WebSocketSharp.Server;
+using CP_SDK_WebSocketSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net.WebSockets;
 using UnityEngine;
 
 namespace BSP_JSTV;
@@ -17,11 +14,24 @@ internal class WSChatService : ChatServiceBase, IChatService {
     public string DisplayName {get;}= "JSTV";
     public Color AccentColor { get; } = new Color((118/256f), (225/265f), (240/256f));
     internal static WSChatChannel channel = new WSChatChannel(PluginConfig.Instance.UserName);
-    (IChatService,IChatChannel)[] chans => [(this,channel)];
-    public ReadOnlyCollection<(IChatService, IChatChannel)> Channels => chans.ToList().AsReadOnly();
+
+    //string key is jstv channelId
+    Dictionary<string, WSChatChannel> channelsDict = new Dictionary<string, WSChatChannel>();
+
+    JSTV_New jstv = new JSTV_New();
+
+    public ReadOnlyCollection<(IChatService, IChatChannel)> Channels { get {
+            List<(IChatService, IChatChannel)> tempList = new List<(IChatService, IChatChannel)>();
+            foreach (var item in channelsDict.Values) {
+                tempList.Add((this, item));
+            }
+            return tempList.AsReadOnly();
+        }
+    }
+
 
     public bool IsConnectedAndLive() {
-        return JSTV.BotConnected;
+        return JSTV_New.BotConnected;
     }
     public bool IsInTempChannel(string p_ChannelName) {
         return false;
@@ -51,7 +61,11 @@ internal class WSChatService : ChatServiceBase, IChatService {
         if (PluginConfig.Instance.FilterHTTP) {
             p_Message = p_Message.Replace("https://", "").Replace("http://", ""); // Joystick disallow most external links, including beatsaver.com
         }
-        JSTV.SendChatMessage(p_Message);
+        if (channel is WSChatChannel) {
+            WSChatChannel w_Channel = p_Channel as WSChatChannel;
+            jstv.SendChatMessage_New(p_Message, w_Channel._id);  
+        }
+        //JSTV.SendChatMessage(p_Message);
         /*const string VNyanURL = "ws://localhost:8000/vnyan";
         WatsonWsClient wsClient = new WatsonWsClient(new Uri(VNyanURL));
         System.Threading.CancellationToken CT = new System.Threading.CancellationToken();
@@ -63,19 +77,31 @@ internal class WSChatService : ChatServiceBase, IChatService {
         return;
     }
 
-    public void Start() {
-        JSTV.ConnectJSTV();
-        channel.Name = PluginConfig.Instance.UserName;
-        //server = new WebSocketServer(9060);
+    public void Start()
+    {
+        jstv.ConnectWebSocket_New();
 
-        //server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));
+        if (!PluginConfig.Instance.UserRefreshToken.IsNullOrEmpty() && PluginConfig.Instance.UserRefreshToken != "null-refreshtoken") {
+            Plugin.Log.Info("Attempting to use stored refresh token");
+            if (jstv.ExchangeRefreshForTokens_New(PluginConfig.Instance.UserRefreshToken, out string aT, out string nRT)) {
+                PluginConfig.Instance.UserRefreshToken = nRT;
+                if(jstv.FetchStreamerSettings_New(aT, out string uN, out string cId)) {
+                    WSChatChannel newChannel = new WSChatChannel(uN);
+                    newChannel._id = cId;
+                    channelsDict.Add(cId, newChannel);
+                    //Do we need to call the OnLogin callback here?
+                }
+            }
+        }
 
-        //server.Start();
+        //JSTV.ConnectJSTV();
+        //channel.Name = PluginConfig.Instance.UserName;
+
     }
 
     public void Stop() {
-        JSTV.DisconnectJSTV();
-        //server.Stop();
+        jstv.DisconnectWebSocket_New();
+        //JSTV.DisconnectJSTV();
     }
 
     public string WebPageHTML() {
@@ -83,11 +109,36 @@ internal class WSChatService : ChatServiceBase, IChatService {
     }
 
     public string WebPageHTMLForm() {
-        return "";
+        return """
+        <div class="col-lg-4 card text-center md mx-auto">
+            <b class="card-header">BSP-JSTV</b>
+            <div class="card-body">
+                <div class="input-group">
+                    <span class="input-group-text">THING!</span>
+                    <input class="form-control" type="text" name="jstv-thing" id="jstv-thing">
+                </div>
+                <p>This empty field is used to send a short-lived code. Once obtained, "Save" it quickly.</p>
+                <div class="input-group">
+                    <span class="input-group-text">Code</span>
+                    <input class="form-control" type="password" name="jstv-code" id="jstv-code">
+                </div>
+                <a href="https://joystick.tv/api/oauth/authorize?response_type=code&client_id=@CLIENT_ID@&scope=bot"
+                class="btn btn-primary btn-lg" style="background-color: rgb(24, 42, 54);color: rgb(10, 255, 255)">Authorize Bot (Obtain Code)</a>
+            </div>
+        </div>
+        """.Replace("@CLIENT_ID@", PluginConfig.Instance.ClientID);
     }
 
     public string WebPageJS() {
-        return "";
+        return """
+        {
+            let params = new URLSearchParams(window.location.search);
+            if (params.has("code")){
+                let code_input_box = document.getElementById("jstv-code");
+                code_input_box.value = params.get("code");
+            }
+        }
+        """;
     }
 
     public string WebPageJSValidate() {
@@ -95,6 +146,23 @@ internal class WSChatService : ChatServiceBase, IChatService {
     }
 
     public void WebPageOnPost(Dictionary<string, string> p_PostData) {
+        if (p_PostData.ContainsKey("jstv-thing")) {
+            Plugin.Log.Notice("Post Thing: "+ p_PostData["jstv-thing"]);
+        }
+        if (p_PostData.ContainsKey("jstv-code")) {
+            Plugin.Log.Notice("Post Code: " + p_PostData["jstv-code"]);
+            if (p_PostData["jstv-code"] != "") {
+                if (jstv.ExchangeCodeForTokens_New(p_PostData["jstv-code"], out string aT, out string nRT)) {
+                    PluginConfig.Instance.UserRefreshToken = nRT;
+                    if (jstv.FetchStreamerSettings_New(aT, out string uN, out string cId)) {
+                        WSChatChannel newChannel = new WSChatChannel(uN);
+                        newChannel._id = cId;
+                        channelsDict.Add(cId, newChannel);
+                        //Do we need to call the OnLogin callback here?
+                    }
+                }
+            }
+        }
         return;
     }
 }
