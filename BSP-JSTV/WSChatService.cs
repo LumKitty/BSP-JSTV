@@ -64,13 +64,17 @@ internal class WSChatService : ChatServiceBase, IChatService {
     }
 
     public void Start() {
-        JSTV.ConnectJSTV();
-        channel.Name = PluginConfig.Instance.UserName;
-        //server = new WebSocketServer(9060);
+        try {
+            JSTV.ConnectJSTV();
+            channel.Name = PluginConfig.Instance.UserName;
+            //server = new WebSocketServer(9060);
 
-        //server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));
+            //server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));
 
-        //server.Start();
+            //server.Start();
+        } catch (Exception ex) {
+            Plugin.Log.Error(ex.ToString());
+        }
     }
 
     public void Stop() {

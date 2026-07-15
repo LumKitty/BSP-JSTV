@@ -24,17 +24,18 @@ internal class Plugin {
     [OnStart]
     public void OnApplicationStart() {
         Log.Debug("OnApplicationStart");
-        if (!(PluginConfig.Instance.UserName.IsNullOrEmpty() || PluginConfig.Instance.ApplicationID.IsNullOrEmpty() || 
-            PluginConfig.Instance.ClientID.IsNullOrEmpty() || PluginConfig.Instance.ClientSecret.IsNullOrEmpty())) {
+        if (!(PluginConfig.Instance.ApplicationID.IsNullOrEmpty() || PluginConfig.Instance.ClientID.IsNullOrEmpty() || PluginConfig.Instance.ClientSecret.IsNullOrEmpty())) {
+            Log.Debug("Create chat service");
             service = new WSChatService();
             //JSTV.UserName = PluginConfig.Instance.Username;
             //JSTV.ApplicationID = PluginConfig.Instance.ApplicationID;
             //JSTV.ClientID = PluginConfig.Instance.ClientID;
             //JSTV.ClientSecret = PluginConfig.Instance.ClientSecret;
             //JSTV.Port = PluginConfig.Instance.Port;
+            Log.Debug("Register chat service");
             CP_SDK.Chat.Service.RegisterExternalService(service);
         } else {
-            Log.Error("BSP-JSTV: Bot credentials not configured");
+            Log.Error("Bot credentials not configured");
         }
     }
 

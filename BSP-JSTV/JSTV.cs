@@ -35,35 +35,42 @@ namespace BSP_JSTV {
 
 
         internal static void Log(string Message) {
-            //VNyan_JSTV.Log(Message);
+            Plugin.Log.Debug(Message);
+        }
+        internal static void ErrorHandler(Exception ex) { 
+            Plugin.Log.Error(ex.ToString()); 
         }
 
         internal static async void ConnectJSTV() {
-            AuthoriseUser();
-            while (!UserConnected) { System.Threading.Thread.Sleep(100); }
+            try {
+                AuthoriseUser();
+                while (!UserConnected) { System.Threading.Thread.Sleep(100); }
 
-            Log("Authorised user. Connecting bot");
-            ConnectionWanted = true;
-            wsClient = new CP_SDK_WebSocketSharp.WebSocket("wss://api.joystick.tv/cable?token=" + EncodedAuth, "actioncable-v1-json");
-            wsClient.OnOpen += ServerConnected;
-            wsClient.OnClose += ServerDisconnected;
-            wsClient.OnError += ServerDisconnected;
-            wsClient.OnMessage += JSMessage.MessageReceived;
-            wsClient.Connect();
+                Log("Authorised user. Connecting bot");
+                ConnectionWanted = true;
+                wsClient = new CP_SDK_WebSocketSharp.WebSocket("wss://api.joystick.tv/cable?token=" + EncodedAuth, "actioncable-v1-json");
+                wsClient.OnOpen += ServerConnected;
+                wsClient.OnClose += ServerDisconnected;
+                wsClient.OnError += ServerDisconnected;
+                wsClient.OnMessage += JSMessage.MessageReceived;
+                wsClient.Connect();
 
 
-            while (!BotConnected) {
-                //Console.Write(".");
-                System.Threading.Thread.Sleep(100);
+                while (!BotConnected) {
+                    //Console.Write(".");
+                    System.Threading.Thread.Sleep(100);
+                }
+
+                Log("Bot connected. Sending subscribe message");
+
+                JObject Message = new JObject(
+                    new JProperty("command", "subscribe"),
+                    new JProperty("identifier", "{\"channel\":\"GatewayChannel\"}")
+                );
+                WSSend(ref Message);
+            } catch (Exception ex) {
+                ErrorHandler(ex);
             }
-
-            Log("Bot connected. Sending subscribe message");
-
-            JObject Message = new JObject(
-                new JProperty("command", "subscribe"),
-                new JProperty("identifier", "{\"channel\":\"GatewayChannel\"}")
-            );
-            WSSend(ref Message);
         }
 
         internal static async void DisconnectJSTV() {
