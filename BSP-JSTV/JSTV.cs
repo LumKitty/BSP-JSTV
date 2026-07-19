@@ -35,35 +35,47 @@ namespace BSP_JSTV {
 
 
         internal static void Log(string Message) {
-            //VNyan_JSTV.Log(Message);
+            Plugin.Log.Debug(Message);
+        }
+        internal static void ErrorHandler(Exception ex) { 
+            Plugin.Log.Error(ex.ToString()); 
         }
 
-        internal static async void ConnectJSTV() {
-            AuthoriseUser();
-            while (!UserConnected) { System.Threading.Thread.Sleep(100); }
+        internal static async Task<bool> ConnectJSTV() {
+            try {
+                //AuthoriseUser();
+                //while (!UserConnected) { System.Threading.Thread.Sleep(100); }
+                if (UserConnected) {
+                    Log("Authorised user. Connecting bot");
+                    ConnectionWanted = true;
+                    wsClient = new CP_SDK_WebSocketSharp.WebSocket("wss://api.joystick.tv/cable?token=" + EncodedAuth, "actioncable-v1-json");
+                    wsClient.OnOpen += ServerConnected;
+                    wsClient.OnClose += ServerDisconnected;
+                    wsClient.OnError += ServerDisconnected;
+                    wsClient.OnMessage += JSMessage.MessageReceived;
+                    wsClient.Connect();
 
-            Log("Authorised user. Connecting bot");
-            ConnectionWanted = true;
-            wsClient = new CP_SDK_WebSocketSharp.WebSocket("wss://api.joystick.tv/cable?token=" + EncodedAuth, "actioncable-v1-json");
-            wsClient.OnOpen += ServerConnected;
-            wsClient.OnClose += ServerDisconnected;
-            wsClient.OnError += ServerDisconnected;
-            wsClient.OnMessage += JSMessage.MessageReceived;
-            wsClient.Connect();
 
+                    while (!BotConnected) {
+                        //Console.Write(".");
+                        System.Threading.Thread.Sleep(100);
+                    }
 
-            while (!BotConnected) {
-                //Console.Write(".");
-                System.Threading.Thread.Sleep(100);
+                    Log("Bot connected. Sending subscribe message");
+
+                    JObject Message = new JObject(
+                        new JProperty("command", "subscribe"),
+                        new JProperty("identifier", "{\"channel\":\"GatewayChannel\"}")
+                    );
+                    WSSend(ref Message);
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception ex) {
+                ErrorHandler(ex);
+                return false;
             }
-
-            Log("Bot connected. Sending subscribe message");
-
-            JObject Message = new JObject(
-                new JProperty("command", "subscribe"),
-                new JProperty("identifier", "{\"channel\":\"GatewayChannel\"}")
-            );
-            WSSend(ref Message);
         }
 
         internal static async void DisconnectJSTV() {
@@ -286,6 +298,7 @@ namespace BSP_JSTV {
                 JSMessage.SaveSettings();
                 UserConnected = true;
             }
+            
         }
     }
 }

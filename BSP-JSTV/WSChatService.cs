@@ -77,25 +77,25 @@ internal class WSChatService : ChatServiceBase, IChatService {
         return;
     }
 
-    public void Start()
-    {
-        jstv.ConnectWebSocket_New();
+    public void Start() {
+        try {
+            jstv.ConnectWebSocket_New();
 
-        if (!PluginConfig.Instance.UserRefreshToken.IsNullOrEmpty() && PluginConfig.Instance.UserRefreshToken != "null-refreshtoken") {
-            Plugin.Log.Info("Attempting to use stored refresh token");
-            if (jstv.ExchangeRefreshForTokens_New(PluginConfig.Instance.UserRefreshToken, out string aT, out string nRT)) {
-                PluginConfig.Instance.UserRefreshToken = nRT;
-                if(jstv.FetchStreamerSettings_New(aT, out string uN, out string cId)) {
-                    WSChatChannel newChannel = new WSChatChannel(uN);
-                    newChannel._id = cId;
-                    channelsDict.Add(cId, newChannel);
-                    //Do we need to call the OnLogin callback here?
+            if (!PluginConfig.Instance.UserRefreshToken.IsNullOrEmpty() && PluginConfig.Instance.UserRefreshToken != "null-refreshtoken") {
+                Plugin.Log.Info("Attempting to use stored refresh token");
+                if (jstv.ExchangeRefreshForTokens_New(PluginConfig.Instance.UserRefreshToken, out string aT, out string nRT)) {
+                    PluginConfig.Instance.UserRefreshToken = nRT;
+                    if(jstv.FetchStreamerSettings_New(aT, out string uN, out string cId)) {
+                        WSChatChannel newChannel = new WSChatChannel(uN);
+                        newChannel._id = cId;
+                        channelsDict.Add(cId, newChannel);
+                        //Do we need to call the OnLogin callback here?
+                    }
                 }
             }
+        } catch (Exception ex) {
+            Plugin.Log.Error(ex.ToString());
         }
-
-        //JSTV.ConnectJSTV();
-        //channel.Name = PluginConfig.Instance.UserName;
 
     }
 
