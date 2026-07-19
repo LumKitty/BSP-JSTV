@@ -18,7 +18,10 @@ namespace BSP_JSTV {
 
     internal class JSMessage {
         
-        internal static void Log(string Message) { }
+        internal static void Log(string Message)
+        {
+            Plugin.Log.Info(Message);
+        }
 
         internal static void MessageReceived(object sender, MessageEventArgs args) {
             try {
@@ -31,8 +34,12 @@ namespace BSP_JSTV {
                             string EventClass = Message["event"].ToString().ToLower();
 
                             WSChatUser usr = new WSChatUser();
-                            WSChatChannel chan = new WSChatChannel(PluginConfig.Instance.UserName);
-                            //chan.Name = PluginConfig.Instance.UserName; ;
+
+                            string chanId = Message["channelId"].ToString();
+                            WSChatChannel chan;
+                            if (WSChatService.channelsDict.ContainsKey(chanId)) {
+                                chan = WSChatService.channelsDict[chanId];
+                            } else {return;}
 
                             switch (EventClass) {
                                 case "chatmessage":
@@ -47,7 +54,7 @@ namespace BSP_JSTV {
 
                                     msg.Message = Message["text"].ToString();
                                     msg.Sender = usr;
-                                    msg.Channel = WSChatService.channel;
+                                    msg.Channel = chan;
 
                                     string TempMessage = " " + msg.Message + " ";
 
@@ -100,7 +107,7 @@ namespace BSP_JSTV {
                                                 break;
                                             case "ViewerCountUpdated":
                                                 ProcessJObject(Metadata, "number_of_viewers", ref Value1);
-                                                WSChatService.channel.ViewerCount = Value1;
+                                                chan.ViewerCount = Value1;
                                                 break;
                                             case "DropinStream":  // raid out
                                                 //ProcessJObject(Metadata, "destination", ref UserName);
