@@ -16,7 +16,7 @@ internal class WSChatService : ChatServiceBase, IChatService {
     internal static WSChatChannel channel = new WSChatChannel(PluginConfig.Instance.UserName);
 
     //string key is jstv channelId
-    Dictionary<string, WSChatChannel> channelsDict = new Dictionary<string, WSChatChannel>();
+    internal static Dictionary<string, WSChatChannel> channelsDict = new Dictionary<string, WSChatChannel>();
 
     JSTV_New jstv = new JSTV_New();
 
@@ -61,7 +61,7 @@ internal class WSChatService : ChatServiceBase, IChatService {
         if (PluginConfig.Instance.FilterHTTP) {
             p_Message = p_Message.Replace("https://", "").Replace("http://", ""); // Joystick disallow most external links, including beatsaver.com
         }
-        if (channel is WSChatChannel) {
+        if (p_Channel is WSChatChannel) {
             WSChatChannel w_Channel = p_Channel as WSChatChannel;
             jstv.SendChatMessage_New(p_Message, w_Channel._id);  
         }
