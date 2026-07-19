@@ -88,7 +88,7 @@ internal class WSChatService : ChatServiceBase, IChatService {
                     if(jstv.FetchStreamerSettings_New(aT, out string uN, out string cId)) {
                         WSChatChannel newChannel = new WSChatChannel(uN);
                         newChannel._id = cId;
-                        channelsDict.Add(cId, newChannel);
+                        channelsDict[cId] = newChannel;
                         //Do we need to call the OnLogin callback here?
                     }
                 }
@@ -157,7 +157,7 @@ internal class WSChatService : ChatServiceBase, IChatService {
                     if (jstv.FetchStreamerSettings_New(aT, out string uN, out string cId)) {
                         WSChatChannel newChannel = new WSChatChannel(uN);
                         newChannel._id = cId;
-                        channelsDict.Add(cId, newChannel);
+                        channelsDict[cId]= newChannel;
                         //Do we need to call the OnLogin callback here?
                     }
                 }
