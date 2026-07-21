@@ -3,7 +3,7 @@ using CP_SDK.Chat.Interfaces;
 
 namespace BSP_JSTV;
 
-internal class WSChatMessage : IChatMessage {
+internal class JSTVChatMessage : IChatMessage {
     public string Id {get;} = Guid.NewGuid().ToString();
     public bool IsSystemMessage => false;
     public bool IsActionMessage => false;

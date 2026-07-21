@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using CP_SDK.Chat;
+using CP_SDK_WebSocketSharp;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using CP_SDK_WebSocketSharp;
 using System.Threading.Tasks;
 
 namespace BSP_JSTV {
@@ -41,10 +42,10 @@ namespace BSP_JSTV {
             Plugin.Log.Error(ex.ToString()); 
         }
 
-        internal static async Task<bool> ConnectJSTV() {
+        internal static async void ConnectJSTV() {
             try {
-                //AuthoriseUser();
-                //while (!UserConnected) { System.Threading.Thread.Sleep(100); }
+                Log("Waiting for auth to complete");
+                Plugin.AuthoriseUserThread.Join();
                 if (UserConnected) {
                     Log("Authorised user. Connecting bot");
                     ConnectionWanted = true;
@@ -54,7 +55,6 @@ namespace BSP_JSTV {
                     wsClient.OnError += ServerDisconnected;
                     wsClient.OnMessage += JSMessage.MessageReceived;
                     wsClient.Connect();
-
 
                     while (!BotConnected) {
                         //Console.Write(".");
@@ -68,13 +68,12 @@ namespace BSP_JSTV {
                         new JProperty("identifier", "{\"channel\":\"GatewayChannel\"}")
                     );
                     WSSend(ref Message);
-                    return true;
-                } else {
-                    return false;
+                    JSTVChatService.channel = new JSTVChatChannel(PluginConfig.Instance.UserName);
+                    Plugin.service.chans = [(Plugin.service, JSTVChatService.channel)];
+                    Plugin.service.m_OnJoinRoomCallbacks?.InvokeAll(Plugin.service, JSTVChatService.channel);
                 }
             } catch (Exception ex) {
                 ErrorHandler(ex);
-                return false;
             }
         }
 
@@ -297,6 +296,7 @@ namespace BSP_JSTV {
                 Log("Detected channel ID:" + PluginConfig.Instance.ChannelID);
                 JSMessage.SaveSettings();
                 UserConnected = true;
+                Plugin.service.m_OnLoginCallbacks?.InvokeAll(Plugin.service);
             }
             
         }

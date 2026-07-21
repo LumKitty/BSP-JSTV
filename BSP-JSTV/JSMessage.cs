@@ -1,4 +1,5 @@
-﻿using CP_SDK.Chat;
+﻿using BSP_JSTV.JSTVEvents;
+using CP_SDK.Chat;
 using CP_SDK.Chat.Interfaces;
 using CP_SDK.Chat.SimpleJSON;
 using CP_SDK_WebSocketSharp;
@@ -30,14 +31,14 @@ namespace BSP_JSTV {
                         if (Message.ContainsKey("event")) {
                             string EventClass = Message["event"].ToString().ToLower();
 
-                            WSChatUser usr = new WSChatUser();
-                            WSChatChannel chan = new WSChatChannel(PluginConfig.Instance.UserName);
+                            JSTVChatUser usr = new JSTVChatUser();
+                            JSTVChatChannel chan = new JSTVChatChannel(PluginConfig.Instance.UserName);
                             //chan.Name = PluginConfig.Instance.UserName; ;
 
                             switch (EventClass) {
                                 case "chatmessage":
 
-                                    WSChatMessage msg = new WSChatMessage();
+                                    JSTVChatMessage msg = new JSTVChatMessage();
                                     
 
                                     usr.UserName = Message["author"]["username"].ToString();
@@ -47,7 +48,7 @@ namespace BSP_JSTV {
 
                                     msg.Message = Message["text"].ToString();
                                     msg.Sender = usr;
-                                    msg.Channel = WSChatService.channel;
+                                    msg.Channel = JSTVChatService.channel;
 
                                     string TempMessage = " " + msg.Message + " ";
 
@@ -56,7 +57,7 @@ namespace BSP_JSTV {
                                             WebClient wc = new WebClient();
                                             Plugin.Log.Debug("Emote: Parsing: |" + TempMessage + "|");
                                             JArray JEmotes = (JArray)Message["emotesUsed"];
-                                            List<WSChatEmote> ChatEmotes = new List<WSChatEmote>();
+                                            List<JSTVChatEmote> ChatEmotes = new List<JSTVChatEmote>();
                                             foreach (JObject JEmote in JEmotes) {
                                                 string URL = JEmote["url"].ToString();
                                                 string Name = JEmote["code"].ToString();
@@ -65,7 +66,7 @@ namespace BSP_JSTV {
                                                 int NameLen = Name.Length;
                                                 foreach (int Index in indices) {
                                                     Plugin.Log.Debug("Emote: |" + Name + "| Found: " + TempMessage.Substring(Index + 1, NameLen));
-                                                    ChatEmotes.Add(new WSChatEmote(Name, URL, Index, Index + NameLen - 1));
+                                                    ChatEmotes.Add(new JSTVChatEmote(Name, URL, Index, Index + NameLen - 1));
                                                 }
                                             }
                                             ChatEmotes.Sort((x, y) => y.StartIndex.CompareTo(x.StartIndex));
@@ -100,7 +101,7 @@ namespace BSP_JSTV {
                                                 break;
                                             case "ViewerCountUpdated":
                                                 ProcessJObject(Metadata, "number_of_viewers", ref Value1);
-                                                WSChatService.channel.ViewerCount = Value1;
+                                                JSTVChatService.channel.ViewerCount = Value1;
                                                 break;
                                             case "DropinStream":  // raid out
                                                 //ProcessJObject(Metadata, "destination", ref UserName);
@@ -144,7 +145,12 @@ namespace BSP_JSTV {
                                             case "GiftedSubscriptions":
                                                 ProcessJObject(Metadata, "who", ref UserName);
                                                 ProcessJObject(Metadata, "how_much", ref Value1);
-                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} gifted {Value1} subscriptions");
+                                                JSTVSubscriptionEvent GiftSubscriptionEvent = new JSTVSubscriptionEvent();
+                                                GiftSubscriptionEvent.DisplayName = UserName;
+                                                GiftSubscriptionEvent.IsGift = true;
+                                                usr.UserName = UserName;
+                                                Plugin.service.m_OnChannelSubscriptionCallbacks?.InvokeAll(Plugin.service, JSTVChatService.channel, usr, GiftSubscriptionEvent);
+                                                //Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} gifted {Value1} subscriptions");
                                                 break;
                                             case "MilestoneCompleted":
                                                 ProcessJObject(Metadata, "who", ref UserName);
@@ -153,18 +159,14 @@ namespace BSP_JSTV {
                                                 Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} met milestone {Value1} ({Item})");
                                                 break;
                                             case "Resubscribed":
-                                                ProcessJObject(Metadata, "who", ref UserName);
-                                                ProcessJObject(Metadata, "how_much", ref Value1);
-                                                ProcessJObject(Metadata, "how_long", ref Value2);
-                                                usr.UserName = UserName;
-                                                //Plugin.service.m_OnChannelSubscriptionCallbacks?.InvokeAll(Plugin.service, chan, usr); //TODO: What is IChatSubscriptionEvent?
-                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} resubscribed {Value1} ({Value2})");
-                                                break;
                                             case "Subscribed":
                                                 ProcessJObject(Metadata, "who", ref UserName);
                                                 ProcessJObject(Metadata, "how_much", ref Value1);
+                                                JSTVSubscriptionEvent SubscriptionEvent = new JSTVSubscriptionEvent();
+                                                SubscriptionEvent.DisplayName = UserName;
+                                                SubscriptionEvent.IsGift = false;
                                                 usr.UserName = UserName;
-                                                Plugin.service.m_OnSystemMessageCallbacks?.InvokeAll(Plugin.service, $"{UserName} subscribed {Value1}");
+                                                Plugin.service.m_OnChannelSubscriptionCallbacks?.InvokeAll(Plugin.service, JSTVChatService.channel, usr, SubscriptionEvent);
                                                 //Plugin.service.m_OnChannelSubscriptionCallbacks?.InvokeAll(Plugin.service, chan, usr); //TODO: What is IChatSubscriptionEvent?
                                                 break;
                                             case "TipGoalMet":

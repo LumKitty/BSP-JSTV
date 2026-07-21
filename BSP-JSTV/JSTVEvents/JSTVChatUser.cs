@@ -3,7 +3,7 @@ using CP_SDK.Chat.Interfaces;
 
 namespace BSP_JSTV;
 
-internal class WSChatUser : IChatUser {
+internal class JSTVChatUser : IChatUser {
     public string Id => "lkjstv_"+UserName.ToLower();
     public string UserName {get; internal set;} = "NULLUSER";
     public string DisplayName => UserName;

@@ -7,18 +7,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Threading;
 using UnityEngine;
 
 namespace BSP_JSTV;
 
-internal class WSChatService : ChatServiceBase, IChatService {
+internal class JSTVChatService : ChatServiceBase, IChatService {
     //WebSocketServer server;
     
     public string DisplayName {get;}= "JSTV";
     public Color AccentColor { get; } = new Color((118/256f), (225/265f), (240/256f));
-    internal static WSChatChannel channel = new WSChatChannel(PluginConfig.Instance.UserName);
-    (IChatService,IChatChannel)[] chans => [(this,channel)];
+    internal static JSTVChatChannel channel;
+    internal (IChatService,IChatChannel)[] chans = [];
     public ReadOnlyCollection<(IChatService, IChatChannel)> Channels => chans.ToList().AsReadOnly();
+    private Thread EventHandler;
 
     public bool IsConnectedAndLive() {
         return JSTV.BotConnected;
@@ -65,13 +67,9 @@ internal class WSChatService : ChatServiceBase, IChatService {
 
     public void Start() {
         try {
-            JSTV.ConnectJSTV();
-            //channel.Name = PluginConfig.Instance.UserName;
-            //server = new WebSocketServer(9060);
-
-            //server.AddWebSocketService<WSSocketBehaviour>("/sock", s => s.SetService(this));
-
-            //server.Start();
+            EventHandler = new Thread(new ThreadStart(JSTV.ConnectJSTV));
+            EventHandler.Name = "JSTV_ConnectBot";
+            EventHandler.Start();
         } catch (Exception ex) {
             Plugin.Log.Error(ex.ToString());
         }

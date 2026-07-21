@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace BSP_JSTV {
-    internal class WSChatEmote : IChatEmote {
+    internal class JSTVChatEmote : IChatEmote {
         public string Id => "lkjstv_" + Name;
         public string Name { get; set; }
         public string Uri { get; set; }
@@ -15,7 +15,7 @@ namespace BSP_JSTV {
         public int EndIndex { get; set; }
         public EAnimationType Animation { get; set; } = EAnimationType.AUTODETECT;
 
-        public WSChatEmote(string _Name, string _Uri, int _StartIndex, int _EndIndex) {
+        public JSTVChatEmote(string _Name, string _Uri, int _StartIndex, int _EndIndex) {
             Name = _Name;
             Uri = _Uri;
             StartIndex = _StartIndex;

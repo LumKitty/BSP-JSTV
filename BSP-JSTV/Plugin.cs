@@ -3,6 +3,7 @@ using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 using IpaLogger = IPA.Logging.Logger;
 
@@ -13,7 +14,8 @@ namespace BSP_JSTV;
 internal class Plugin {
     internal static IpaLogger Log { get; private set; } = null!;
     internal static Config cfg { get; private set; }
-    internal static WSChatService service;
+    internal static JSTVChatService service;
+    internal static Thread AuthoriseUserThread;
 
     [Init]
     public Plugin(IpaLogger ipaLogger,Config config, PluginMetadata pluginMetadata) {
@@ -27,14 +29,12 @@ internal class Plugin {
         Log.Debug("OnApplicationStart");
         if (!(PluginConfig.Instance.ApplicationID.IsNullOrEmpty() || PluginConfig.Instance.ClientID.IsNullOrEmpty() || PluginConfig.Instance.ClientSecret.IsNullOrEmpty())) {
             Log.Debug("Authenticate with joystick");
-            JSTV.AuthoriseUser();
+            AuthoriseUserThread = new Thread(new ThreadStart(JSTV.AuthoriseUser));
+            AuthoriseUserThread.Name = "JSTV_AuthoriseUser";
+            AuthoriseUserThread.Start();
+
             Log.Debug("Create chat service");
-            service = new WSChatService();
-            //JSTV.UserName = PluginConfig.Instance.Username;
-            //JSTV.ApplicationID = PluginConfig.Instance.ApplicationID;
-            //JSTV.ClientID = PluginConfig.Instance.ClientID;
-            //JSTV.ClientSecret = PluginConfig.Instance.ClientSecret;
-            //JSTV.Port = PluginConfig.Instance.Port;
+            service = new JSTVChatService();
             Log.Debug("Register chat service");
             CP_SDK.Chat.Service.RegisterExternalService(service);
         } else {
